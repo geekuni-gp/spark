@@ -634,11 +634,23 @@ class SparkSqlAstBuilder extends AstBuilder {
     (ctx.LOCAL != null, finalStorage, Some(DDLUtils.HIVE_PROVIDER))
   }
 
-
   /**
    * Return the parameters for [[ShowVersionCommand]] logical plan.
    */
   override def visitShowVersion(ctx: ShowVersionContext): LogicalPlan = withOrigin(ctx) {
     ShowVersionCommand()
+  }
+
+  /**
+   * Return the parameters for [[CompactTableCommand]] logical plan.
+   */
+  override def visitCompactTable(ctx: CompactTableContext): LogicalPlan = withOrigin(ctx) {
+
+    val fileNum: Option[Int] = if (ctx.INTEGER_VALUE() == null) {
+      None
+    } else {
+      Some(ctx.INTEGER_VALUE().getText.toInt)
+    }
+    CompactTableCommand(visitTableIdentifier(ctx.target), fileNum)
   }
 }
